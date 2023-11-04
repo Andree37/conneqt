@@ -1,5 +1,5 @@
 "use client"
-import {useId, useState} from 'react'
+import {useEffect, useId, useState} from 'react'
 import Link from 'next/link'
 
 import {Border} from '@/components/Border'
@@ -11,7 +11,18 @@ import {SocialMedia} from '@/components/SocialMedia'
 import Dropzone from "react-dropzone";
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 
-import countries from "@/countries/countries.json";
+const GEO_API_ENDPOINT = "http://api.geonames.org"
+const GEO_USERNAME = "andree37"
+
+type Country = {
+    name: string;
+    code: string;
+}
+
+type City = {
+    name: string;
+    population: number;
+}
 
 function TextInput({
                        label,
@@ -55,11 +66,53 @@ function RadioInput({
 }
 
 function ContactForm() {
+    const [countries, setCountries] = useState<Country[]>([]);
+    const [cities, setCities] = useState<City[]>([]);
+
     const [form, setForm] = useState<{ file: File | undefined, country: string, city: string }>({
         file: undefined,
-        country: 'Portugal',
+        country: 'PT',
         city: "Lisbon"
     })
+
+    useEffect(() => {
+        async function fetchCountries() {
+            try {
+                const response = await fetch(`${GEO_API_ENDPOINT}/countryInfoJSON?username=${GEO_USERNAME}`);
+                const data = await response.json();
+                const countryData: Country[] = data.geonames.map((item: any) => ({
+                    name: item.countryName,
+                    code: item.countryCode
+                }));
+                setCountries(countryData);
+            } catch (error) {
+                console.error("Error fetching countries:", error);
+            }
+        }
+
+        fetchCountries();
+    }, []);
+
+
+    useEffect(() => {
+        async function fetchCities(countryCode: string) {
+            try {
+                const response = await fetch(`${GEO_API_ENDPOINT}/searchJSON?country=${countryCode}&featureClass=P&featureCode=PPLC&featureCode=PPLA&maxRows=10&username=${GEO_USERNAME}`);
+                const data = await response.json();
+                const cityData: City[] = data.geonames.map((item: any) => ({
+                    name: item.name,
+                    population: item.population
+                }));
+                setCities(cityData);
+            } catch (error) {
+                console.error("Error fetching cities:", error);
+            }
+        }
+
+        if (form.country) {
+            fetchCities(form.country);
+        }
+    }, [form.country]);
 
     return (
         <FadeIn className="lg:order-last">
@@ -98,10 +151,11 @@ function ContactForm() {
                             <SelectTrigger className='h-full border border-neutral-300 rounded-none'>
                                 <SelectValue placeholder="Select a country"/>
                             </SelectTrigger>
-                            <SelectContent className='bg-gray-100'>
-                                <SelectGroup className=''>
-                                    {Object.keys(countries).filter((value, index, array) => array.indexOf(value) === index).map((country) => (
-                                        <SelectItem value={country}>{country}</SelectItem>
+                            <SelectContent className='bg-gray-100 overflow-y-auto max-h-[10rem]'>
+                                <SelectGroup className='overflow-y-auto'>
+                                    {countries.map((country) => (
+                                        <SelectItem className='hover:bg-gray-200' key={country.code}
+                                                    value={country.code}>{country.name}</SelectItem>
                                     ))}
                                 </SelectGroup>
                             </SelectContent>
@@ -112,10 +166,11 @@ function ContactForm() {
                             <SelectTrigger className="h-full border border-neutral-300 rounded-none">
                                 <SelectValue placeholder="Select a city"/>
                             </SelectTrigger>
-                            <SelectContent className='bg-gray-100'>
-                                <SelectGroup className=''>
-                                    {countries[form.country as keyof typeof countries]?.filter((value, index, array) => array.indexOf(value) === index).map((city) => (
-                                        <SelectItem value={city}>{city}</SelectItem>
+                            <SelectContent className='bg-gray-100 overflow-y-auto max-h-[10rem]'>
+                                <SelectGroup>
+                                    {cities.map(({name}) => (
+                                        <SelectItem className='hover:bg-gray-200' key={name}
+                                                    value={name}>{name}</SelectItem>
                                     ))}
                                 </SelectGroup>
                             </SelectContent>
