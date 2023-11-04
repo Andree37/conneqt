@@ -48,7 +48,7 @@ export default function ConnectWeb3({
     if (isConnected && address) {
       notifyCli.subscribe({
         account: address,
-        appDomain: 'https://www.conneqt.pt',
+        appDomain: 'www.conneqt.pt',
       })
     }
   }, [isConnected && address])
