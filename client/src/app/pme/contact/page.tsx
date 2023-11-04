@@ -1,5 +1,5 @@
 "use client"
-import {useEffect, useId, useState} from 'react'
+import {useCallback, useEffect, useId, useState} from 'react'
 import Link from 'next/link'
 
 import {Border} from '@/components/Border'
@@ -10,6 +10,7 @@ import {PageIntro} from '@/components/PageIntro'
 import {SocialMedia} from '@/components/SocialMedia'
 import Dropzone from "react-dropzone";
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {useRouter} from "next/navigation";
 
 const GEO_API_ENDPOINT = "http://api.geonames.org"
 const GEO_USERNAME = "andree37"
@@ -65,15 +66,29 @@ function RadioInput({
     )
 }
 
+type Form = { file: File | undefined, country: string, city: string, email: string }
+
 function ContactForm() {
+    const router = useRouter()
     const [countries, setCountries] = useState<Country[]>([]);
     const [cities, setCities] = useState<City[]>([]);
 
-    const [form, setForm] = useState<{ file: File | undefined, country: string, city: string }>({
+    const [form, setForm] = useState<Form>({
         file: undefined,
         country: 'PT',
-        city: "Lisbon"
+        city: "Lisbon",
+        email: '',
     })
+
+    const submit = useCallback(async (form: Form) => {
+        const response = await fetch('/api/pme', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(form),
+        })
+
+        return await response.json()
+    }, [])
 
     useEffect(() => {
         async function fetchCountries() {
@@ -116,11 +131,25 @@ function ContactForm() {
 
     return (
         <FadeIn className="lg:order-last">
-            <form onSubmit={(e) => {
+            <form onSubmit={async (e) => {
                 e.preventDefault()
-                fetch('/api/pme', {method: 'POST', body: JSON.stringify(form)}).then(() => {
-                    alert('Form submitted')
-                })
+                const {password} = await submit(form)
+                // send email with the new password and redirect to auth-login
+
+                console.log('password', password)
+                // TODO: actually send email
+                // const res = await fetch('/api/email', {
+                //     method: 'POST',
+                //     headers: {'Content-Type': 'application/json'},
+                //     body: JSON.stringify({
+                //         emailTo: form.email,
+                //         message: `Your password is ${password}`,
+                //         subject: 'Welcome to Conneqt'
+                //     }),
+                // })
+
+                router.replace('/pme/login')
+                alert(`Login with your email and the password sent on email`)
             }}>
                 <h2 className="font-display text-base font-semibold text-neutral-950">
                     Register your service
@@ -128,6 +157,8 @@ function ContactForm() {
                 <div className="isolate mt-6 -space-y-px rounded-2xl bg-white/50">
                     <TextInput label="Your name" name="name" autoComplete="name"/>
                     <TextInput
+                        value={form.email}
+                        onChange={(e) => setForm({...form, email: e.target.value})}
                         label="Email"
                         type="email"
                         name="email"
@@ -189,7 +220,7 @@ function ContactForm() {
                                         onClick={() => setForm({...form, file: undefined})}>Remover</Button>
                                 </div> :
                                 <div {...getRootProps()}
-                                     className='relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none cursor-pointer'>
+                                     className='relative text-gray-500 block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none cursor-pointer'>
                                     <svg
                                         className="mx-auto h-12 w-12 text-gray-400"
                                         fill="none"
@@ -205,11 +236,11 @@ function ContactForm() {
                                             d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
                                         />
                                     </svg>
+                                    Company logo
                                     <input {...getInputProps()} />
                                 </div>
                         )}
                     </Dropzone>
-                    <TextInput label="Answer to client call" name="answer_to_client_call"/>
                     <div className="border border-neutral-300 px-6 py-8 first:rounded-t-2xl last:rounded-b-2xl">
                         <fieldset>
                             <legend className="text-base/6 text-neutral-500">Service type</legend>
