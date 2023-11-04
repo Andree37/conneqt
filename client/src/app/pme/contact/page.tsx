@@ -66,7 +66,17 @@ function RadioInput({
     )
 }
 
-type Form = { file: File | undefined, country: string, city: string, email: string }
+export type Form = {
+    file: File | undefined,
+    country: string,
+    city: string,
+    email: string,
+    name: string,
+    companyName: string,
+    phone: string,
+    logo: File | undefined,
+    serviceType: string,
+}
 
 function ContactForm() {
     const router = useRouter()
@@ -78,6 +88,11 @@ function ContactForm() {
         country: 'PT',
         city: "Lisbon",
         email: '',
+        name: '',
+        companyName: '',
+        phone: '',
+        logo: undefined,
+        serviceType: 'online',
     })
 
     const submit = useCallback(async (form: Form) => {
@@ -137,25 +152,29 @@ function ContactForm() {
                 // send email with the new password and redirect to auth-login
 
                 console.log('password', password)
-                // TODO: actually send email
-                // const res = await fetch('/api/email', {
-                //     method: 'POST',
-                //     headers: {'Content-Type': 'application/json'},
-                //     body: JSON.stringify({
-                //         emailTo: form.email,
-                //         message: `Your password is ${password}`,
-                //         subject: 'Welcome to Conneqt'
-                //     }),
-                // })
+                const res = await fetch('/api/email', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        emailTo: form.email,
+                        message: `Your password is ${password}`,
+                        subject: 'Welcome to Conneqt'
+                    }),
+                })
 
-                router.replace('/pme/login')
-                alert(`Login with your email and the password sent on email`)
+                if (res.ok) {
+                    router.replace('/pme/login')
+                    alert(`Login with your email and the password sent on email`)
+                } else {
+                    alert('Something went wrong')
+                }
             }}>
                 <h2 className="font-display text-base font-semibold text-neutral-950">
                     Register your service
                 </h2>
                 <div className="isolate mt-6 -space-y-px rounded-2xl bg-white/50">
-                    <TextInput label="Your name" name="name" autoComplete="name"/>
+                    <TextInput value={form.name} onChange={(e) => setForm({...form, name: e.target.value})}
+                               label="Your name" name="Your name" autoComplete="name"/>
                     <TextInput
                         value={form.email}
                         onChange={(e) => setForm({...form, email: e.target.value})}
@@ -165,12 +184,15 @@ function ContactForm() {
                         autoComplete="email"
                     />
                     <TextInput
+                        value={form.companyName}
+                        onChange={(e) => setForm({...form, companyName: e.target.value})}
                         label="Company name"
                         name="company"
                         autoComplete="organization"
                     />
-                    <TextInput label="Phone" type="tel" name="phone" autoComplete="tel"/>
-                    <TextInput label="Message" name="message"/>
+                    <TextInput value={form.phone}
+                               onChange={(e) => setForm({...form, phone: e.target.value})}
+                               label="Phone" type="tel" name="phone" autoComplete="tel"/>
                     <div className='flex justify-between space-x-5 flex-1 h-20'>
                         <Select value={form.country}
                                 onValueChange={(v) => {
@@ -244,10 +266,16 @@ function ContactForm() {
                     <div className="border border-neutral-300 px-6 py-8 first:rounded-t-2xl last:rounded-b-2xl">
                         <fieldset>
                             <legend className="text-base/6 text-neutral-500">Service type</legend>
-                            <div className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2">
-                                <RadioInput label="Online" name="type" value="online"/>
-                                <RadioInput label="Presential" name="type" value="presential"/>
-                                <RadioInput label="Both" name="type" value="both"/>
+                            <div className='mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2'
+                            >
+                                <RadioInput
+                                    label="Online" defaultChecked
+                                    name="type" value="online"
+                                    onClick={() => setForm({...form, serviceType: 'online'})}/>
+                                <RadioInput label="Presential" name="type" value="presential"
+                                            onClick={() => setForm({...form, serviceType: 'presential'})}/>
+                                <RadioInput label="Both" name="type" value="both"
+                                            onClick={() => setForm({...form, serviceType: 'both'})}/>
                             </div>
                         </fieldset>
                     </div>

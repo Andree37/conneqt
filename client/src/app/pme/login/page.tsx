@@ -49,10 +49,11 @@ export default function Login() {
             <form method='post' onSubmit={async (e) => {
                 e.preventDefault()
                 const response = await submit(form);
-                console.log(response)
                 if (response?._id) {
                     setCookie('userID', response._id, {sameSite: 'strict'});
-                    router.replace('/dashboard')
+                    router.replace('/pme/dashboard')
+                } else {
+                    alert('Invalid credentials')
                 }
             }}>
                 <div className="space-y-6">
