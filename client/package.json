@@ -10,6 +10,7 @@
   },
   "browserslist": "defaults, not ie <= 11",
   "dependencies": {
+    "@headlessui/react": "^1.7.17",
     "@iexec/web3mail": "^0.5.2",
     "@leafac/rehype-shiki": "^2.2.1",
     "@mdx-js/loader": "^2.3.0",
@@ -61,6 +62,7 @@
     "bcrypt": "^5.1.1",
     "clsx": "^1.2.0",
     "cookies-next": "^4.0.0",
+    "date-fns": "^2.30.0",
     "escape-string-regexp": "^5.0.0",
     "ethers": "5.7.2",
     "fast-glob": "^3.2.12",
