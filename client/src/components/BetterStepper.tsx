@@ -34,7 +34,7 @@ const BetterStepper = ({ steps }) => {
           </li>
         ))}
       </ol>
-      <div className="mt-8">
+      <div className="mt-8 flex items-center justify-center">
         {cloneElement(steps[currentStep].component, {
           goToNextStep,
           goToPrevStep,

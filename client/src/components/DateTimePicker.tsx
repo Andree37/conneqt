@@ -7,6 +7,7 @@ const DateTimePicker = ({ selectedDate, onChange }) => {
 
   return (
     <DatePicker
+      wrapperClassName="w-[35%]"
       selected={selectedDate}
       onChange={onChange}
       showTimeSelect
