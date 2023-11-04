@@ -9,6 +9,7 @@ export default async function middleware(req: NextRequest) {
         pathname.startsWith('/api') ||
         pathname.startsWith('/static') ||
         pathname.startsWith('/schedule') ||
+        pathname.startsWith('/pme/contact') ||
         PUBLIC_FILE.test(pathname)
     ) {
         return NextResponse.next();

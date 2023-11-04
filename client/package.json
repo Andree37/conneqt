@@ -60,6 +60,7 @@
     "add": "^2.0.6",
     "autoprefixer": "^10.4.7",
     "bcrypt": "^5.1.1",
+    "class-variance-authority": "^0.7.0",
     "clsx": "^1.2.0",
     "cookies-next": "^4.0.0",
     "date-fns": "^2.30.0",
