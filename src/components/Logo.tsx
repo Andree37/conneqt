@@ -67,11 +67,11 @@ export function Logo({
         x="40"
         y="18"
         font-family="Arial"
-        font-size="16"
+        font-size="18"
         letter-spacing="2"
         fill={invert ? 'white' : 'fill-neutral-950'}
         stroke={invert ? 'black' : 'transparent'}
-        stroke-width="2"
+        strokeWidth="5"
       >
         Conneqt
       </text>
