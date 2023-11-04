@@ -1,4 +1,6 @@
 'use client'
+import { Form } from '@/app/pme/contact/page'
+import { clientDataI } from '@/app/schedule/[id]/page'
 import {
   useWeb3Modal,
   useWeb3ModalAccount,
@@ -22,7 +24,15 @@ const buttonStyle = {
   transition: 'background-color 0.3s ease',
 }
 
-export default function ConnectWeb3({ clientInfo, scheduleDate, pmeInfo }) {
+export default function ConnectWeb3({
+  clientInfo,
+  scheduleDate,
+  pmeInfo,
+}: {
+  clientInfo: clientDataI
+  scheduleDate: any
+  pmeInfo: Form
+}) {
   // 4. Use modal hook
   const { open } = useWeb3Modal()
 
@@ -37,7 +47,7 @@ export default function ConnectWeb3({ clientInfo, scheduleDate, pmeInfo }) {
 
   async function onSendTransaction() {
     const signature = await signer?.sendTransaction({
-      to: '0x4579d0Ad79BFBdf4539a1dDF5f10B378D724a34C',
+      to: pmeInfo.address,
       //This value is defined by the PME
       value: '10000000000000',
     })
@@ -49,6 +59,16 @@ export default function ConnectWeb3({ clientInfo, scheduleDate, pmeInfo }) {
         emailTo: pmeInfo.email,
         message: `You have a new client ${clientInfo.name} schedule to date - ${scheduleDate} with email: ${clientInfo.email} and phone: ${clientInfo.phone}`,
         subject: `New client ${clientInfo.name}`,
+      }),
+    })
+    await fetch('/api/appointment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        date: scheduleDate,
+        clientInfo: clientInfo,
+        //@ts-ignore This is not typed but it's internal of mongo db
+        pmeId: pmeInfo._id,
       }),
     })
   }

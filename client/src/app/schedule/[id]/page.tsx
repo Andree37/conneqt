@@ -107,11 +107,19 @@ function ContactForm({ handleChange, form }) {
     </FadeIn>
   )
 }
-
+export interface clientDataI {
+  name: string
+  email: string
+  phone: string
+}
 export default function Contact({ params }: { params: { id: string } }) {
   const [pmeInfo, setPmeInfo] = useState<Form | undefined>(undefined)
   const [selectedDate, setSelectedDate] = useState(new Date())
-  const [form, setForm] = useState({ name: '', email: '', phone: '' })
+  const [form, setForm] = useState<clientDataI>({
+    name: '',
+    email: '',
+    phone: '',
+  })
 
   const handleFormChange = (propName: string, value: string) => {
     setForm({ ...form, [propName]: value })
