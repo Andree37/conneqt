@@ -1,4 +1,5 @@
-import { useId } from 'react'
+'use client'
+import { useEffect, useId, useState } from 'react'
 import { type Metadata } from 'next'
 import Link from 'next/link'
 
@@ -9,6 +10,46 @@ import { FadeIn } from '@/components/FadeIn'
 import { Offices } from '@/components/Offices'
 import { PageIntro } from '@/components/PageIntro'
 import { SocialMedia } from '@/components/SocialMedia'
+import DateTimePicker from '@/components/DateTimePicker'
+import Stepper from '@/components/Stepper'
+import BetterStepper from '@/components/BetterStepper'
+import { loadStripe } from '@stripe/stripe-js'
+import { Elements } from '@stripe/react-stripe-js'
+import CheckoutForm from '@/components/CheckoutForm'
+import ConnectWeb3 from '@/components/ConnectWeb3'
+
+import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react'
+
+// 1. Get projectId
+const projectId = process.env.NEXT_PUBLIC_CONNECT_PROJECT_ID
+
+// 2. Set chains
+const goerli = {
+  chainId: 5,
+  name: 'Ethereum',
+  currency: 'ETH',
+  explorerUrl: 'https://etherscan.io',
+  rpcUrl: 'https://ethereum-goerli.publicnode.com',
+}
+
+// 3. Create modal
+const web3ModalMetadata = {
+  name: 'My Website',
+  description: 'My Website description',
+  url: 'https://mywebsite.com',
+  icons: ['https://avatars.mywebsite.com/'],
+}
+
+createWeb3Modal({
+  ethersConfig: defaultConfig({ metadata: web3ModalMetadata }),
+  chains: [goerli],
+  projectId,
+})
+
+// Make sure to call loadStripe outside of a component’s render to avoid
+// recreating the Stripe object on every render.
+// This is your test publishable API key.
+//const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
 
 function TextInput({
   label,
@@ -35,22 +76,6 @@ function TextInput({
   )
 }
 
-function RadioInput({
-  label,
-  ...props
-}: React.ComponentPropsWithoutRef<'input'> & { label: string }) {
-  return (
-    <label className="flex gap-x-3">
-      <input
-        type="radio"
-        {...props}
-        className="h-6 w-6 flex-none appearance-none rounded-full border border-neutral-950/20 outline-none checked:border-[0.5rem] checked:border-neutral-950 focus-visible:ring-1 focus-visible:ring-neutral-950 focus-visible:ring-offset-2"
-      />
-      <span className="text-base/6 text-neutral-950">{label}</span>
-    </label>
-  )
-}
-
 function ContactForm() {
   return (
     <FadeIn className="lg:order-last">
@@ -66,24 +91,7 @@ function ContactForm() {
             name="email"
             autoComplete="email"
           />
-          <TextInput
-            label="Company"
-            name="company"
-            autoComplete="organization"
-          />
           <TextInput label="Phone" type="tel" name="phone" autoComplete="tel" />
-          <TextInput label="Message" name="message" />
-          <div className="border border-neutral-300 px-6 py-8 first:rounded-t-2xl last:rounded-b-2xl">
-            <fieldset>
-              <legend className="text-base/6 text-neutral-500">Budget</legend>
-              <div className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2">
-                <RadioInput label="$25K – $50K" name="budget" value="25" />
-                <RadioInput label="$50K – $100K" name="budget" value="50" />
-                <RadioInput label="$100K – $150K" name="budget" value="100" />
-                <RadioInput label="More than $150K" name="budget" value="150" />
-              </div>
-            </fieldset>
-          </div>
         </div>
         <Button type="submit" className="mt-10">
           Let’s work together
@@ -140,24 +148,97 @@ function ContactDetails() {
   )
 }
 
-export const metadata: Metadata = {
+/* export const metadata: Metadata = {
   title: 'Contact Us',
   description: 'Let’s work together. We can’t wait to hear from you.',
 }
+ */
 
 export default function Contact() {
+  const [selectedDate, setSelectedDate] = useState(new Date())
+  const handleDateChange = (date) => {
+    setSelectedDate(date)
+  }
+
+  const renderDateTimePicker = () => {
+    return (
+      <DateTimePicker selectedDate={selectedDate} onChange={handleDateChange} />
+    )
+  }
+
+  // Stripe
+  /*  const [clientSecret, setClientSecret] = useState('')
+
+  useEffect(() => {
+    // Create PaymentIntent as soon as the page loads
+    fetch('/api/create-payment-intent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items: [{ id: 'xl-tshirt' }] }),
+    })
+      .then((res) => res.json())
+      .then((data) => setClientSecret(data.clientSecret))
+  }, [])
+
+  const appearance = {
+    theme: 'stripe',
+  }
+  const options = {
+    clientSecret,
+    appearance,
+  }
+
+  const renderCheckoutForm = () => {
+    console.log('ENTER clientSecret', clientSecret)
+
+    if (!clientSecret) return <></>
+    return (
+      <Elements options={options} stripe={stripePromise}>
+        <CheckoutForm />
+      </Elements>
+    )
+  } */
+
+  // Steps
+
+  const steps = [
+    {
+      id: 'Step 1',
+      name: 'Job details',
+      href: '#',
+      component: <ContactForm />,
+    },
+    {
+      id: 'Step 2',
+      name: 'Application form',
+      href: '#',
+      component: renderDateTimePicker(),
+    },
+    {
+      id: 'Step 3',
+      name: 'Preview',
+      href: '#',
+      component: <ConnectWeb3 />,
+    },
+  ]
+
   return (
     <>
       <PageIntro eyebrow="Contact us" title="Let’s work together">
         <p>We can’t wait to hear from you.</p>
       </PageIntro>
-
-      <Container className="mt-24 sm:mt-32 lg:mt-40">
+      <BetterStepper steps={steps} />
+      {/*  <Stepper /> */}
+      {/*  <Container className="mt-24 sm:mt-32 lg:mt-40">
         <div className="grid grid-cols-1 gap-x-8 gap-y-24 lg:grid-cols-2">
           <ContactForm />
           <ContactDetails />
         </div>
-      </Container>
+        <DateTimePicker
+          selectedDate={selectedDate}
+          onChange={handleDateChange}
+        />
+      </Container> */}
     </>
   )
 }
