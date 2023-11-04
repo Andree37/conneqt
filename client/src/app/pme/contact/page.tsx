@@ -76,6 +76,7 @@ export type Form = {
     phone: string,
     logo: File | undefined,
     serviceType: string,
+    address: string,
 }
 
 function ContactForm() {
@@ -93,6 +94,7 @@ function ContactForm() {
         phone: '',
         logo: undefined,
         serviceType: 'online',
+        address: '',
     })
 
     const submit = useCallback(async (form: Form) => {
@@ -279,6 +281,13 @@ function ContactForm() {
                             </div>
                         </fieldset>
                     </div>
+                    <TextInput
+                        value={form.address}
+                        onChange={(e) => setForm({...form, address: e.target.value})}
+                        label="Wallet address"
+                        name="address"
+                        autoComplete="wallet-address"
+                    />
                 </div>
                 <Button type="submit" className="mt-10">
                     Let’s work together
