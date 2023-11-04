@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useId, useState } from 'react'
+import { useCallback, useEffect, useId, useState } from 'react'
 import Link from 'next/link'
 
 import { Border } from '@/components/Border'
@@ -14,6 +14,7 @@ import ConnectWeb3 from '@/components/ConnectWeb3'
 
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react'
 import { Form } from '@/app/pme/contact/page'
+import { NotifyClient } from '@walletconnect/notify-client'
 //  import SubscribeWeb3Inbox from '@/components/SubscribeWeb3Inbox'
 // 1. Get projectId
 const projectId = process.env.NEXT_PUBLIC_CONNECT_PROJECT_ID
@@ -121,9 +122,23 @@ export default function Contact({ params }: { params: { id: string } }) {
     phone: '',
   })
 
+  const [notifyCli, setNotifyCli] = useState<NotifyClient | null>(null)
+
   const handleFormChange = (propName: string, value: string) => {
     setForm({ ...form, [propName]: value })
   }
+
+  const initNotify = useCallback(async () => {
+    const notifyClient = await NotifyClient.init({
+      projectId: projectId,
+    })
+
+    setNotifyCli(notifyClient)
+  }, [projectId])
+
+  useEffect(() => {
+    initNotify()
+  }, [initNotify])
 
   useEffect(() => {
     async function f() {
@@ -191,6 +206,7 @@ export default function Contact({ params }: { params: { id: string } }) {
             clientInfo={form}
             scheduleDate={selectedDate}
             pmeInfo={pmeInfo}
+            notifyCli={notifyCli}
           />
         </div>
       ),

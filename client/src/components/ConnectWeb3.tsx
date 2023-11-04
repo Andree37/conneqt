@@ -7,6 +7,8 @@ import {
   useWeb3ModalSigner,
   useWeb3ModalState,
 } from '@web3modal/ethers5/react'
+import { useCallback, useEffect } from 'react'
+import { NotifyClient } from '@walletconnect/notify-client'
 
 const buttonStyle = {
   backgroundColor: '#4CAF50',
@@ -28,10 +30,12 @@ export default function ConnectWeb3({
   clientInfo,
   scheduleDate,
   pmeInfo,
+  notifyCli,
 }: {
   clientInfo: clientDataI
   scheduleDate: any
   pmeInfo: Form
+  notifyCli: NotifyClient
 }) {
   // 4. Use modal hook
   const { open } = useWeb3Modal()
@@ -39,6 +43,19 @@ export default function ConnectWeb3({
   const { selectedNetworkId } = useWeb3ModalState()
   const { address, chainId, isConnected } = useWeb3ModalAccount()
   const { signer } = useWeb3ModalSigner()
+
+  const subscribeInbox = useCallback(() => {
+    if (isConnected && address) {
+      notifyCli.subscribe({
+        account: address,
+        appDomain: 'localhost:3000',
+      })
+    }
+  }, [isConnected && address])
+
+  useEffect(() => {
+    subscribeInbox()
+  }, [subscribeInbox])
 
   async function onSignMessage() {
     const signature = await signer?.signMessage('Hello Web3Modal Ethers')
