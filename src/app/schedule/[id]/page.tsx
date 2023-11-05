@@ -348,29 +348,29 @@ export default function Contact({params}: { params: { id: string } }) {
                         performRegistration={performRegistration}
                     />
                     {/*  <SubscribeWeb3Inbox /> */}
-                    <>
-                        {!isSubscribed ? (
-                            <>
-                                <button onClick={performSubscribe} disabled={isSubscribing}>
-                                    {isSubscribing
-                                        ? 'Subscribing...'
-                                        : 'Subscribe to notifications'}
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <div>You are subscribed</div>
-                                <div>Subscription: {JSON.stringify(subscription)}</div>
-                                <div>Messages: {JSON.stringify(messages)}</div>
-                                <button onClick={() => sendNotification({
-                                    name: "test",
-                                    email: "test",
-                                    phone: "test"
-                                }, new Date())}>Send notification
-                                </button>
-                            </>
-                        )}
-                    </>
+                    {/*<>*/}
+                    {/*    {!isSubscribed ? (*/}
+                    {/*        <>*/}
+                    {/*            <button onClick={performSubscribe} disabled={isSubscribing}>*/}
+                    {/*                {isSubscribing*/}
+                    {/*                    ? 'Subscribing...'*/}
+                    {/*                    : 'Subscribe to notifications'}*/}
+                    {/*            </button>*/}
+                    {/*        </>*/}
+                    {/*    ) : (*/}
+                    {/*        <>*/}
+                    {/*            <div>You are subscribed</div>*/}
+                    {/*            <div>Subscription: {JSON.stringify(subscription)}</div>*/}
+                    {/*            <div>Messages: {JSON.stringify(messages)}</div>*/}
+                    {/*            <button onClick={() => sendNotification({*/}
+                    {/*                name: "test",*/}
+                    {/*                email: "test",*/}
+                    {/*                phone: "test"*/}
+                    {/*            }, new Date())}>Send notification*/}
+                    {/*            </button>*/}
+                    {/*        </>*/}
+                    {/*    )}*/}
+                    {/*</>*/}
                 </div>
             ),
         },
