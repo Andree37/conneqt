@@ -231,7 +231,7 @@ export default function Contact({params}: { params: { id: string } }) {
                         body: `You have a new client ${clientInfo.name} schedule to date - ${scheduleDate} with email: ${clientInfo.email} and phone: ${clientInfo.phone}`,
                     },
                     accounts: [
-                        account, // CAIP-10 account ID
+                        `eip155:1:${pmeInfo?.address}`, // CAIP-10 account ID
                     ],
                 }),
             },
