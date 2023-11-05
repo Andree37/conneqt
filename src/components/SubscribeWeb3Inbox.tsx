@@ -76,7 +76,7 @@ export default function SubscribeWeb3Inbox() {
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${process.env.NOTIFY_SECRET}`,
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_NOTIFY_SECRET}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({

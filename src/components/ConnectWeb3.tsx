@@ -31,11 +31,15 @@ export default function ConnectWeb3({
   scheduleDate,
   pmeInfo,
   notifyCli,
+  onSendTransaction,
+  performRegistration,
 }: {
   clientInfo: clientDataI
   scheduleDate: any
   pmeInfo: Form
   notifyCli: NotifyClient
+  onSendTransaction: any
+  performRegistration: any
 }) {
   // 4. Use modal hook
   const { open } = useWeb3Modal()
@@ -50,6 +54,8 @@ export default function ConnectWeb3({
         account: address,
         appDomain: 'www.conneqt.pt',
       })
+
+      performRegistration()
     }
   }, [isConnected && address])
 
@@ -62,39 +68,21 @@ export default function ConnectWeb3({
     console.log(signature)
   }
 
-  async function onSendTransaction() {
-    const signature = await signer?.sendTransaction({
-      to: pmeInfo.address,
-      //This value is defined by the PME
-      value: '10000000000000',
-    })
-
-    const res = await fetch('/api/email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        emailTo: pmeInfo.email,
-        message: `You have a new client ${clientInfo.name} schedule to date - ${scheduleDate} with email: ${clientInfo.email} and phone: ${clientInfo.phone}`,
-        subject: `New client ${clientInfo.name}`,
-      }),
-    })
-    await fetch('/api/appointment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        date: scheduleDate,
-        clientInfo: clientInfo,
-        //@ts-ignore This is not typed but it's internal of mongo db
-        pmeId: pmeInfo._id,
-      }),
-    })
-  }
-
   return (
     <>
       {isConnected ? (
         // @ts-ignore
-        <button style={buttonStyle} onClick={() => onSendTransaction()}>
+        <button
+          style={buttonStyle}
+          onClick={() =>
+            onSendTransaction({
+              signer,
+              clientInfo,
+              scheduleDate,
+              pmeInfo,
+            })
+          }
+        >
           Pay 0.0001 eth
         </button>
       ) : (
