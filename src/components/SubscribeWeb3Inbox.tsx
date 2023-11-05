@@ -34,13 +34,11 @@ export default function SubscribeWeb3Inbox() {
     isLimited: false,
   })
 
-  const { setAccount, isRegistered, isRegistering, register } = useW3iAccount()
+  const { setAccount, isRegistered, isRegistering, register, account } =
+    useW3iAccount()
+
   useEffect(() => {
-    console.log('ENTER ADRESSS', address)
-
     if (!address) return // Convert the address into a CAIP-10 blockchain-agnostic account ID and update the Web3Inbox SDK with it
-
-    console.log('ETNER SET ACCOUNT ')
 
     setAccount(`eip155:1:${address}`)
   }, [isConnected, address])
@@ -48,8 +46,6 @@ export default function SubscribeWeb3Inbox() {
   // In order to authorize the dapp to control subscriptions, the user needs to sign a SIWE message which happens automatically when `register()` is called.
   // Depending on the configuration of `domain` and `isLimited`, a different message is generated.
   const performRegistration = useCallback(async () => {
-    console.log('ENTER WHEN ADDRESS PERFORM REGIST', address)
-
     if (!address) return
     try {
       console.log('ENTER BEFORE REGISTER')
@@ -64,11 +60,6 @@ export default function SubscribeWeb3Inbox() {
     }
   }, [onSignMessage, register, address])
 
-  useEffect(() => {
-    // Register even if an identity key exists, to account for stale keys
-    performRegistration()
-  }, [performRegistration])
-
   const { isSubscribed, isSubscribing, subscribe } = useManageSubscription()
 
   const performSubscribe = useCallback(async () => {
@@ -78,6 +69,29 @@ export default function SubscribeWeb3Inbox() {
   }, [subscribe, isRegistered])
 
   const { subscription } = useSubscription()
+
+  const sendNotification = async () => {
+    const response = await fetch(
+      `https://notify.walletconnect.com/${process.env.NEXT_PUBLIC_CONNECT_PROJECT_ID}/notify`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${process.env.NOTIFY_SECRET}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          notification: {
+            type: 'fbc778e0-20c8-4b7f-b420-9de8b6672056', // Notification type ID copied from Cloud
+            title: 'Transaction succeded',
+            body: 'Notification body',
+          },
+          accounts: [
+            account, // CAIP-10 account ID
+          ],
+        }),
+      },
+    )
+  }
 
   return (
     <>
@@ -120,6 +134,9 @@ export default function SubscribeWeb3Inbox() {
                       <div>You are subscribed</div>
                       <div>Subscription: {JSON.stringify(subscription)}</div>
                       <div>Messages: {JSON.stringify(messages)}</div>
+                      <button onClick={sendNotification}>
+                        Send notification
+                      </button>
                     </>
                   )}
                 </>
