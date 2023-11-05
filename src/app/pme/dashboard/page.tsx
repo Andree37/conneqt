@@ -5,7 +5,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 
 
 async function fetchAppointmentsFromUser(pmeID: string) {
-    const res = await fetch(`http://localhost:3000/api/appointment?pmeID=${pmeID}`);
+    const res = await fetch(`https://www.conneqt.pt/api/appointment?pmeID=${pmeID}`);
     if (res.ok) {
         return await res.json();
     }

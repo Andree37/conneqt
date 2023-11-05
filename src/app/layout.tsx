@@ -7,8 +7,8 @@ import {Toaster} from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
     title: {
-        template: '%s - Studio',
-        default: 'Studio - Award winning developer studio based in Denmark',
+        template: '%s - Conneqt',
+        default: 'Conneqt - We help independent workers connect with clients and get paid',
     },
 }
 
