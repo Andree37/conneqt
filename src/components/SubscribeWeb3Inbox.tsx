@@ -19,7 +19,8 @@ export default function SubscribeWeb3Inbox() {
   const { signer } = useWeb3ModalSigner()
 
   async function onSignMessage({ message }: { message: string }) {
-    return await signer?.signMessage(message)
+    if (!signer) return ''
+    return await signer.signMessage(message)
   }
 
   // Initialize the Web3Inbox SDK
@@ -33,27 +34,35 @@ export default function SubscribeWeb3Inbox() {
     isLimited: false,
   })
 
-  const { account, setAccount, isRegistered, isRegistering, register } =
-    useW3iAccount()
+  const { setAccount, isRegistered, isRegistering, register } = useW3iAccount()
   useEffect(() => {
     console.log('ENTER ADRESSS', address)
 
-    if (!address)
-      return // Convert the address into a CAIP-10 blockchain-agnostic account ID and update the Web3Inbox SDK with it
-    ;`eip155:1:${address}`
-  }, [])
+    if (!address) return // Convert the address into a CAIP-10 blockchain-agnostic account ID and update the Web3Inbox SDK with it
+
+    console.log('ETNER SET ACCOUNT ')
+
+    setAccount(`eip155:1:${address}`)
+  }, [isConnected, address])
 
   // In order to authorize the dapp to control subscriptions, the user needs to sign a SIWE message which happens automatically when `register()` is called.
   // Depending on the configuration of `domain` and `isLimited`, a different message is generated.
   const performRegistration = useCallback(async () => {
-    if (!account) return
+    console.log('ENTER WHEN ADDRESS PERFORM REGIST', address)
+
+    if (!address) return
     try {
-      // @ts-ignore
-      await register((message) => onSignMessage({ message }))
+      console.log('ENTER BEFORE REGISTER')
+
+      await register((message: string) => {
+        console.log('ENTER MESSAGE', message)
+        return onSignMessage({ message })
+      })
+      console.log('ENTER here after register')
     } catch (registerIdentityError) {
       alert(registerIdentityError)
     }
-  }, [onSignMessage, register, account])
+  }, [onSignMessage, register, address])
 
   useEffect(() => {
     // Register even if an identity key exists, to account for stale keys
@@ -81,7 +90,7 @@ export default function SubscribeWeb3Inbox() {
           ) : (
             <>
               <div>Address: {address}</div>
-              <div>Account ID: {account}</div>
+              <div>Account ID: eip155:1: {address}</div>
               {!isRegistered ? (
                 <div>
                   To manage notifications, sign and register an identity

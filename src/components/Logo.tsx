@@ -66,9 +66,9 @@ export function Logo({
       <text
         x="40"
         y="18"
-        font-family="Arial"
-        font-size="18"
-        letter-spacing="2"
+        fontFamily="Arial"
+        fontSize="18"
+        letterSpacing="2"
         fill={invert ? 'white' : 'fill-neutral-950'}
         stroke={invert ? 'black' : 'transparent'}
         strokeWidth="5"
